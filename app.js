@@ -3,10 +3,11 @@ const bodyParser = require("body-parser");
 
 const app = express();
 
-let items = ["banana", "apple", "watermelon"];
+let items = ["banana", "apple", "watermelon",];
 
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({extended: true}));
+app.use(express.static("public"));
 
 
 app.get("/", function (req, res) {
