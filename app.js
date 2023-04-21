@@ -33,7 +33,7 @@ const item3 = new Item({
     name: "<-- Hit this to delete an item."
 });
 
-const defaultItem = [item1, item2, item3];
+const defaultItems = [item1, item2, item3];
 
 // Item.insertMany(defaultItem)
 //     .then(function () {
@@ -46,26 +46,44 @@ const defaultItem = [item1, item2, item3];
 app.get("/", function (req, res) {
     // const day = date.getDate();
     Item.find({})
-    .then(foundItem => {
-      if (foundItem.length === 0) {
-        return Item.insertMany(defaultItems);
-      } else {
-        return foundItem;
-      }
-    })
-    .then(savedItem => {
-      res.render("list", {
-        listTitle: "Today",
-        newListItems: savedItem
-      });
-    })
-    .catch(err => console.log(err));
+        .then(foundItem => {
+            if (foundItem.length === 0) {
+                return Item.insertMany(defaultItems);
+            } else {
+                return foundItem;
+            }
+        })
+        .then(savedItem => {
+            res.render("list", {
+                listTitle: "Today",
+                newListItems: savedItem
+            });
+        })
+        .catch(err => console.log(err));
 });
+
+app.post("/delete", function (req, res) {
+    const checkedItemId = req.body.checkbox;
+    Item.findByIdAndRemove(checkedItemId)
+        .then((err) => {
+            if (!err) {
+                console.log("successfully deleted");
+            }
+        });
+    res.redirect("/");
+
+});
+
+
+
 
 app.post("/", function (req, res) {
 
-    const item = req.body.newItem;
-    items.push(item);
+    const itemName = req.body.newItem;
+    const item = new Item({
+        name: itemName
+    });
+    item.save();
     res.redirect("/");
 });
 
