@@ -60,7 +60,7 @@ app.get("/:customListName", function (req, res) {
         .then(foundList => {
             if (foundList) {
                 // show an existing list
-               // console.log("/n exist")
+                // console.log("/n exist")
                 res.render("list", {
                     listTitle: foundList.name,
                     newListItems: foundList.items
@@ -100,27 +100,50 @@ app.get("/", function (req, res) {
 
 app.post("/delete", function (req, res) {
     const checkedItemId = req.body.checkbox;
-    Item.findByIdAndRemove(checkedItemId)
-        .then((err) => {
-            if (!err) {
-                console.log("successfully deleted");
-            }
-        });
-    res.redirect("/");
+    const listName = req.body.listName;
+
+    if (listName === "Today") {
+        Item.findByIdAndRemove(checkedItemId)
+            .then((err) => {
+                if (!err) {
+                    console.log("successfully deleted");
+                }
+            });
+        res.redirect("/");
+    } else {
+        List.findOne({ name: listName })
+            .then(function (foundList) {
+                foundList.items.pull({ _id: checkedItemId });
+                foundList.save();
+                res.redirect("/" + listName);
+            })
+    }
 
 });
-
-
 
 
 app.post("/", function (req, res) {
 
     const itemName = req.body.newItem;
+    const listName = req.body.list;
     const item = new Item({
         name: itemName
-    });
-    item.save();
-    res.redirect("/");
+    })
+
+    if (listName === "Today") {
+        item.save();
+        res.redirect("/");
+    } else {
+        List.findOne({ name: listName })
+            .then(function (foundList) {
+                foundList.items.push(item);
+                foundList.save();
+                res.redirect("/" + listName);
+            })
+            .catch(function (err) {
+                console.log(err)
+            });
+    }
 });
 
 app.get("/work", function (req, res) {
