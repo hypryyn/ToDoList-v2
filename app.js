@@ -118,6 +118,11 @@ app.post("/delete", function (req, res) {
                 foundList.save();
                 res.redirect("/" + listName);
             })
+        // let doc = List.findOneAndUpdate({ name: listName }, { $pull: { items: { _id: checkedItem } } }, {
+        //     new: true
+        // }).then(function (foundList) {
+        //     res.redirect("/" + listName);
+        // }).catch(err => console.log(err));
     }
 
 });
