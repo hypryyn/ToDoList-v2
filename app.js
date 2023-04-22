@@ -19,7 +19,14 @@ const itemsSchema = {
     name: String
 };
 
+const listShema = {
+    name: String,
+    items: [itemsSchema]
+};
+
 const Item = mongoose.model("Item", itemsSchema);
+
+const List = mongoose.model("List", listShema);
 
 const item1 = new Item({
     name: "Welcome to your todolist!"
@@ -41,6 +48,35 @@ const defaultItems = [item1, item2, item3];
 //     }).catch(function (err) {
 //         console.log(err)
 //     });
+
+app.get("/:customListName", function (req, res) {
+    const customListName = req.params.customListName;
+    const list = new List({
+        name: customListName,
+        items: defaultItems
+    });
+
+    List.findOne({ name: customListName })
+        .then(foundList => {
+            if (foundList) {
+                // show an existing list
+               // console.log("/n exist")
+                res.render("list", {
+                    listTitle: foundList.name,
+                    newListItems: foundList.items
+                });
+            } else {
+                // create new list
+                // console.log("doesnt exist")
+                const list = new List({
+                    name: customListName,
+                    items: defaultItems
+                })
+                list.save()
+                res.redirect("/" + customListName)
+            }
+        }).catch(err => console.log(err.body));
+});
 
 
 app.get("/", function (req, res) {
